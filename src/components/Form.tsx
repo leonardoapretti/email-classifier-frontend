@@ -27,7 +27,7 @@ const formSchema = z
   .refine(
     (data) => {
       const hasText = !!data.emailText && data.emailText.trim() !== "";
-      const hasFile = !!data.emailFile;
+      const hasFile = data.emailFile instanceof File;
       return hasText || hasFile;
     },
     {
@@ -37,8 +37,8 @@ const formSchema = z
   );
 
 interface EmailResultDTO {
-  categoria: string;
-  resposta: string;
+  category: string;
+  response: string;
   error?: string;
 }
 
@@ -49,7 +49,7 @@ export function EmailForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      emailText: "",
+      emailText: "algum texto",
     },
   });
 
@@ -58,16 +58,33 @@ export function EmailForm() {
     setResult(null);
 
     try {
-      //...
+      const formData = new FormData();
+      const emailText = form.getValues("emailText");
+      const emailFile = form.getValues("emailFile");
+
+      if (emailText) {
+        formData.append("email_text", emailText);
+      }
+      if (emailFile) {
+        formData.append("email_file", emailFile);
+      }
+
+      const response = await fetch("http://localhost:8001/api/process_email/", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      setResult(data as EmailResultDTO);
     } finally {
       setLoading(false);
     }
   }
 
   const copyResponse = async () => {
-    if (result?.resposta) {
+    if (result?.response) {
       try {
-        await navigator.clipboard.writeText(result.resposta);
+        await navigator.clipboard.writeText(result.response);
         alert("Resposta copiada para a área de transferência!");
       } catch (error) {
         alert("Erro ao copiar resposta" + error);
@@ -166,13 +183,13 @@ export function EmailForm() {
                     Categoria:{" "}
                     <span
                       className={
-                        result.categoria === "Produtivo"
+                        result.category === "Produtivo"
                           ? "text-green-600"
                           : "text-gray-600"
                       }
                     >
-                      {result.categoria === "Produtivo" ? "✅" : "ℹ️"}{" "}
-                      {result.categoria}
+                      {result.category === "Produtivo" ? "✅" : "ℹ️"}{" "}
+                      {result.category}
                     </span>
                   </h4>
                 </div>
@@ -180,7 +197,7 @@ export function EmailForm() {
                 <div>
                   <h5 className="font-semibold mb-2">💬 Resposta Sugerida:</h5>
                   <Alert>
-                    <AlertDescription>{result.resposta}</AlertDescription>
+                    <AlertDescription>{result.response}</AlertDescription>
                   </Alert>
                 </div>
 
