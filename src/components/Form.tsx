@@ -36,15 +36,25 @@ const formSchema = z
     }
   );
 
-interface EmailResultDTO {
-  category: string;
-  response: string;
-  error?: string;
+// Interface atualizada para corresponder à resposta da API
+interface ProcessEmailResponse {
+  success: boolean;
+  text: string;
+  classification: {
+    category: string;
+    is_productive: boolean;
+  };
+  response: {
+    generated: boolean;
+    message: string;
+    text: string | null;
+  };
+  timestamp: string;
 }
 
 export function EmailForm() {
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<EmailResultDTO | null>(null);
+  const [result, setResult] = useState<ProcessEmailResponse | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -75,19 +85,22 @@ export function EmailForm() {
       });
 
       const data = await response.json();
-      setResult(data as EmailResultDTO);
+      setResult(data as ProcessEmailResponse);
+    } catch (error) {
+      console.error("Erro ao processar email:", error);
+      // Tratamento específico de erros
     } finally {
       setLoading(false);
     }
   }
 
   const copyResponse = async () => {
-    if (result?.response) {
+    if (result?.response?.text) {
       try {
-        await navigator.clipboard.writeText(result.response);
+        await navigator.clipboard.writeText(result.response.text);
         alert("Resposta copiada para a área de transferência!");
       } catch (error) {
-        alert("Erro ao copiar resposta" + error);
+        alert("Erro ao copiar resposta: " + error);
       }
     }
   };
@@ -172,9 +185,11 @@ export function EmailForm() {
             <CardTitle>Resultado da Análise</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {result.error ? (
+            {!result.success ? (
               <Alert variant="destructive">
-                <AlertDescription>{result.error}</AlertDescription>
+                <AlertDescription>
+                  Erro ao processar o email. Tente novamente.
+                </AlertDescription>
               </Alert>
             ) : (
               <>
@@ -183,27 +198,43 @@ export function EmailForm() {
                     Categoria:{" "}
                     <span
                       className={
-                        result.category === "Produtivo"
+                        result.classification.category === "Produtivo"
                           ? "text-green-600"
                           : "text-gray-600"
                       }
                     >
-                      {result.category === "Produtivo" ? "✅" : "ℹ️"}{" "}
-                      {result.category}
+                      {result.classification.is_productive ? "✅" : "ℹ️"}{" "}
+                      {result.classification.category}
                     </span>
                   </h4>
                 </div>
 
-                <div>
-                  <h5 className="font-semibold mb-2">💬 Resposta Sugerida:</h5>
-                  <Alert>
-                    <AlertDescription>{result.response}</AlertDescription>
-                  </Alert>
-                </div>
+                {result.response.text && (
+                  <div>
+                    <h5 className="font-semibold mb-2">
+                      💬 Resposta Sugerida:
+                    </h5>
+                    <Alert>
+                      <AlertDescription>
+                        {result.response.text}
+                      </AlertDescription>
+                    </Alert>
+                  </div>
+                )}
 
-                <Button variant="outline" onClick={copyResponse}>
-                  📋 Copiar Resposta
-                </Button>
+                {result.response.text && (
+                  <Button variant="outline" onClick={copyResponse}>
+                    📋 Copiar Resposta
+                  </Button>
+                )}
+
+                {!result.response.generated && (
+                  <Alert>
+                    <AlertDescription>
+                      {result.response.message}
+                    </AlertDescription>
+                  </Alert>
+                )}
               </>
             )}
           </CardContent>
