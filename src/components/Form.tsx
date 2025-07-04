@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useState } from "react";
-
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -59,7 +59,7 @@ export function EmailForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      emailText: "algum texto",
+      emailText: "",
     },
   });
 
@@ -86,9 +86,9 @@ export function EmailForm() {
 
       const data = await response.json();
       setResult(data as ProcessEmailResponse);
+      form.reset();
     } catch (error) {
-      console.error("Erro ao processar email:", error);
-      // Tratamento específico de erros
+      // Trate o erro se necessário
     } finally {
       setLoading(false);
     }
@@ -98,9 +98,13 @@ export function EmailForm() {
     if (result?.response?.text) {
       try {
         await navigator.clipboard.writeText(result.response.text);
-        alert("Resposta copiada para a área de transferência!");
+        toast.success("Resposta copiada para a área de transferência!", {
+          duration: 2000,
+        });
       } catch (error) {
-        alert("Erro ao copiar resposta: " + error);
+        toast.error("Erro ao copiar resposta: " + error, {
+          duration: 2000,
+        });
       }
     }
   };
