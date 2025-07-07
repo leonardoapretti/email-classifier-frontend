@@ -1,69 +1,92 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Design System React
 
-Currently, two official plugins are available:
+## Descrição
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Este projeto é um **Design System** desenvolvido em React e TypeScript, com foco em componentes reutilizáveis, acessíveis e estilizados para aplicações web modernas. Ele inclui componentes essenciais como botões, cards, formulários, inputs, labels, alerts e textareas, todos com estilos customizáveis via CSS.
 
-## Expanding the ESLint configuration
+## Funcionalidades
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Componentes desacoplados e reutilizáveis
+- Tipagem forte com TypeScript
+- Estilização modular via CSS
+- Foco em acessibilidade e boas práticas de UI/UX
+- Fácil integração em projetos React
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Componentes Disponíveis
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+- **Button**: Botão customizável com diferentes variantes e estados
+- **Card**: Container para exibir conteúdos agrupados
+- **Form**: Componente de formulário com validação
+- **Input**: Campo de entrada de dados
+- **Label**: Rótulo associado a inputs
+- **Alert**: Mensagens de alerta e feedback
+- **Textarea**: Campo de texto multilinha
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Instalação
+
+Clone o repositório e instale as dependências:
+
+```bash
+git clone https://github.com/seu-usuario/seu-repo.git
+cd seu-repo
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Uso
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Importe e utilize os componentes no seu projeto React:
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```tsx
+import { Button, Card, Form, Input, Label, Alert, Textarea } from './components';
+
+function App() {
+  return (
+    <Card>
+      <Form>
+        <Label htmlFor="nome">Nome</Label>
+        <Input id="nome" />
+        <Textarea id="mensagem" />
+        <Button type="submit">Enviar</Button>
+        <Alert type="success" message="Mensagem enviada!" />
+      </Form>
+    </Card>
+  );
+}
 ```
+
+## Scripts Disponíveis
+
+- `npm start` — Inicia o projeto em modo desenvolvimento
+- `npm run build` — Gera a versão de produção
+- `npm test` — Executa os testes automatizados
+
+## Estrutura de Pastas
+
+```
+src/
+  components/
+    button.tsx
+    card.tsx
+    form.tsx
+    input.tsx
+    label.tsx
+    alert.tsx
+    textarea.tsx
+  App.tsx
+  main.tsx
+  index.css
+```
+
+## Customização
+
+Os estilos podem ser facilmente customizados editando o arquivo `index.css` ou sobrescrevendo classes nos seus próprios arquivos de estilo.
+
+## Contribuição
+
+Contribuições são bem-vindas!  
+Para contribuir, faça um fork do projeto, crie uma branch com sua feature ou correção, e envie um pull request.
+
+## Licença
+
+Este projeto está licenciado sob a [MIT License](LICENSE).
