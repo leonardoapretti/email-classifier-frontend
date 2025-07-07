@@ -36,7 +36,6 @@ const formSchema = z
     }
   );
 
-// Interface atualizada para corresponder à resposta da API
 interface ProcessEmailResponse {
   success: boolean;
   text: string;
@@ -60,6 +59,7 @@ export function EmailForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       emailText: "",
+      emailFile: undefined,
     },
   });
 
@@ -72,7 +72,7 @@ export function EmailForm() {
       const emailText = form.getValues("emailText");
       const emailFile = form.getValues("emailFile");
 
-      if (emailText) {
+      if (emailText && emailText.trim() !== "") {
         formData.append("email_text", emailText);
       }
       if (emailFile) {
@@ -80,18 +80,24 @@ export function EmailForm() {
       }
 
       const response = await fetch(
-        "https://email-classifier-backend-ia98.onrender.com/api/process_email",
+        "https://email-classifier-backend-ia98.onrender.com/api/process_email/",
         {
           method: "POST",
           body: formData,
         }
       );
 
-      const data = await response.json();
-      setResult(data as ProcessEmailResponse);
+      if (!response.ok) {
+        throw new Error(`Erro na requisição: ${response.statusText}`);
+      }
+
+      const data = (await response.json()) as ProcessEmailResponse;
+      setResult(data);
       form.reset();
     } catch (error) {
-      // Trate o erro se necessário
+      toast.error(
+        error instanceof Error ? error.message : "Erro ao enviar o formulário"
+      );
     } finally {
       setLoading(false);
     }
@@ -105,9 +111,14 @@ export function EmailForm() {
           duration: 2000,
         });
       } catch (error) {
-        toast.error("Erro ao copiar resposta: " + error, {
-          duration: 2000,
-        });
+        toast.error(
+          error instanceof Error
+            ? "Erro ao copiar resposta: " + error.message
+            : "Erro ao copiar resposta",
+          {
+            duration: 2000,
+          }
+        );
       }
     }
   };
