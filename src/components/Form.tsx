@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ModeToggle } from "./custom/ThemeToggleBtn";
 
 const formSchema = z
   .object({
@@ -137,20 +138,25 @@ export function EmailForm() {
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">
-            Classificador Inteligente de Emails
+          <CardTitle>
+            <div className="flex justify-between items-center w-full">
+              <span className="text-2xl font-bold">
+                Classificador Inteligente de Emails
+              </span>
+              <ModeToggle />
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex justify-center mb-6">
-            <div className="flex bg-gray-100 rounded-lg p-1">
+            <div className="flex bg-secondary rounded-lg p-1">
               <button
                 type="button"
                 onClick={() => !isFileMode || toggleMode()}
                 className={`px-4 py-2 rounded-md transition-all duration-200 ${
                   !isFileMode
-                    ? "bg-white shadow-sm text-primary font-medium"
-                    : "text-gray-600 hover:text-gray-800"
+                    ? "bg-card shadow-sm text-primary font-medium"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 ✍️ Texto
@@ -160,8 +166,8 @@ export function EmailForm() {
                 onClick={() => isFileMode || toggleMode()}
                 className={`px-4 py-2 rounded-md transition-all duration-200 ${
                   isFileMode
-                    ? "bg-white shadow-sm text-primary font-medium"
-                    : "text-gray-600 hover:text-gray-800"
+                    ? "bg-card shadow-sm text-primary font-medium"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 📎 Arquivo
@@ -246,8 +252,8 @@ export function EmailForm() {
                               <div
                                 className={`border-2 border-dashed rounded-lg p-8 text-center h-[280px] flex flex-col justify-center items-center cursor-pointer transition-all ${
                                   value
-                                    ? "border-green-400 bg-green-50"
-                                    : "border-gray-300 hover:border-gray-400"
+                                    ? "border-primary/50 bg-primary/5"
+                                    : "border-border hover:border-input"
                                 }`}
                                 onClick={() =>
                                   document
@@ -258,8 +264,8 @@ export function EmailForm() {
                                   e.preventDefault();
                                   e.stopPropagation();
                                   e.currentTarget.classList.add(
-                                    "border-blue-400",
-                                    "bg-blue-50"
+                                    "border-primary",
+                                    "bg-primary/10"
                                   );
                                 }}
                                 onDragEnter={(e) => {
@@ -270,16 +276,16 @@ export function EmailForm() {
                                   e.preventDefault();
                                   e.stopPropagation();
                                   e.currentTarget.classList.remove(
-                                    "border-blue-400",
-                                    "bg-blue-50"
+                                    "border-primary",
+                                    "bg-primary/10"
                                   );
                                 }}
                                 onDrop={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
                                   e.currentTarget.classList.remove(
-                                    "border-blue-400",
-                                    "bg-blue-50"
+                                    "border-primary",
+                                    "bg-primary/10"
                                   );
                                   const files = e.dataTransfer.files;
                                   if (files.length > 0) {
@@ -302,27 +308,27 @@ export function EmailForm() {
                                 {value ? (
                                   <>
                                     <div className="text-6xl mb-4">✅</div>
-                                    <p className="text-green-600 font-medium mb-2">
+                                    <p className="text-primary font-medium mb-2">
                                       Arquivo selecionado:
                                     </p>
-                                    <p className="text-sm text-gray-700 mb-2">
+                                    <p className="text-sm text-foreground mb-2">
                                       {value.name}
                                     </p>
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-muted-foreground">
                                       {(value.size / 1024).toFixed(2)} KB
                                     </p>
-                                    <p className="text-xs text-gray-500 mt-2">
+                                    <p className="text-xs text-muted-foreground mt-2">
                                       Clique para selecionar outro arquivo
                                     </p>
                                   </>
                                 ) : (
                                   <>
                                     <div className="text-6xl mb-4">📁</div>
-                                    <p className="text-gray-600 mb-2">
+                                    <p className="text-foreground mb-2">
                                       Arraste e solte seu arquivo aqui ou clique
                                       para selecionar
                                     </p>
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-sm text-muted-foreground">
                                       Formatos suportados: .txt, .pdf
                                     </p>
                                   </>
@@ -376,9 +382,9 @@ export function EmailForm() {
                     Categoria:{" "}
                     <span
                       className={
-                        result.classification.category === "Produtivo"
-                          ? "text-green-600"
-                          : "text-gray-600"
+                        result.classification.is_productive
+                          ? "text-primary"
+                          : "text-muted-foreground"
                       }
                     >
                       {result.classification.is_productive ? "✅" : "ℹ️"}{" "}
