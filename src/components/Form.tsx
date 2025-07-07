@@ -79,10 +79,13 @@ export function EmailForm() {
         formData.append("email_file", emailFile);
       }
 
-      const response = await fetch("http://localhost:8001/api/process_email/", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://email-classifier-backend-ia98.onrender.com/process_email",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const data = await response.json();
       setResult(data as ProcessEmailResponse);
