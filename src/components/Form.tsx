@@ -54,6 +54,7 @@ interface ProcessEmailResponse {
 export function EmailForm() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ProcessEmailResponse | null>(null);
+  const [isFileMode, setIsFileMode] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,6 +63,15 @@ export function EmailForm() {
       emailFile: undefined,
     },
   });
+
+  const toggleMode = () => {
+    setIsFileMode(!isFileMode);
+    // Limpar os campos ao trocar de modo
+    form.reset({
+      emailText: "",
+      emailFile: undefined,
+    });
+  };
 
   async function onSubmit() {
     setLoading(true);
@@ -132,57 +142,207 @@ export function EmailForm() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="emailFile"
-                render={({ field: { onChange, name, onBlur, ref } }) => (
-                  <FormItem>
-                    <FormLabel>📎 Upload de Email (.txt ou .pdf)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="file"
-                        accept=".txt,.pdf"
-                        disabled={loading}
-                        name={name}
-                        ref={ref}
-                        onBlur={onBlur}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          onChange(file);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <div className="flex justify-center mb-6">
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              <button
+                type="button"
+                onClick={() => !isFileMode || toggleMode()}
+                className={`px-4 py-2 rounded-md transition-all duration-200 ${
+                  !isFileMode
+                    ? "bg-white shadow-sm text-primary font-medium"
+                    : "text-gray-600 hover:text-gray-800"
+                }`}
+              >
+                ✍️ Texto
+              </button>
+              <button
+                type="button"
+                onClick={() => isFileMode || toggleMode()}
+                className={`px-4 py-2 rounded-md transition-all duration-200 ${
+                  isFileMode
+                    ? "bg-white shadow-sm text-primary font-medium"
+                    : "text-gray-600 hover:text-gray-800"
+                }`}
+              >
+                📎 Arquivo
+              </button>
+            </div>
+          </div>
 
-              <FormField
-                control={form.control}
-                name="emailText"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Escreva ou cole o texto do email</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Cole aqui o conteúdo do email para análise..."
-                        rows={6}
-                        disabled={loading}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <div className="relative h-[400px] perspective-1000">
+            <div
+              className={`absolute inset-0 transition-transform duration-500 transform-style-preserve-3d ${
+                isFileMode ? "rotate-y-180" : ""
+              }`}
+            >
+              {/* Lado do Texto */}
+              <div className="absolute inset-0 backface-hidden">
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-6 h-full flex flex-col"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="emailText"
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormLabel>
+                            Escreva ou cole o texto do email
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Cole aqui o conteúdo do email para análise..."
+                              className="h-[280px] resize-none"
+                              disabled={loading}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Processando..." : "Processar Email"}
-              </Button>
-            </form>
-          </Form>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? "Processando..." : "Processar Email"}
+                    </Button>
+                  </form>
+                </Form>
+              </div>
+
+              {/* Lado do Arquivo */}
+              <div className="absolute inset-0 backface-hidden rotate-y-180">
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-6 h-full flex flex-col"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="emailFile"
+                      render={({
+                        field: { onChange, value, name, onBlur, ref },
+                      }) => (
+                        <FormItem className="flex-1">
+                          <FormLabel>
+                            📎 Upload de Email (.txt ou .pdf)
+                          </FormLabel>
+                          <FormControl>
+                            <div className="space-y-4 h-full">
+                              <Input
+                                type="file"
+                                accept=".txt,.pdf"
+                                disabled={loading}
+                                name={name}
+                                ref={ref}
+                                onBlur={onBlur}
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  onChange(file);
+                                }}
+                                className="hidden"
+                                id="file-upload"
+                              />
+                              <div
+                                className={`border-2 border-dashed rounded-lg p-8 text-center h-[280px] flex flex-col justify-center items-center cursor-pointer transition-all ${
+                                  value
+                                    ? "border-green-400 bg-green-50"
+                                    : "border-gray-300 hover:border-gray-400"
+                                }`}
+                                onClick={() =>
+                                  document
+                                    .getElementById("file-upload")
+                                    ?.click()
+                                }
+                                onDragOver={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  e.currentTarget.classList.add(
+                                    "border-blue-400",
+                                    "bg-blue-50"
+                                  );
+                                }}
+                                onDragEnter={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                }}
+                                onDragLeave={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  e.currentTarget.classList.remove(
+                                    "border-blue-400",
+                                    "bg-blue-50"
+                                  );
+                                }}
+                                onDrop={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  e.currentTarget.classList.remove(
+                                    "border-blue-400",
+                                    "bg-blue-50"
+                                  );
+                                  const files = e.dataTransfer.files;
+                                  if (files.length > 0) {
+                                    const file = files[0];
+                                    if (
+                                      file.type === "text/plain" ||
+                                      file.type === "application/pdf" ||
+                                      file.name.endsWith(".txt") ||
+                                      file.name.endsWith(".pdf")
+                                    ) {
+                                      onChange(file);
+                                    } else {
+                                      toast.error(
+                                        "Formato de arquivo não suportado. Use apenas .txt ou .pdf"
+                                      );
+                                    }
+                                  }
+                                }}
+                              >
+                                {value ? (
+                                  <>
+                                    <div className="text-6xl mb-4">✅</div>
+                                    <p className="text-green-600 font-medium mb-2">
+                                      Arquivo selecionado:
+                                    </p>
+                                    <p className="text-sm text-gray-700 mb-2">
+                                      {value.name}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      {(value.size / 1024).toFixed(2)} KB
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-2">
+                                      Clique para selecionar outro arquivo
+                                    </p>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="text-6xl mb-4">📁</div>
+                                    <p className="text-gray-600 mb-2">
+                                      Arraste e solte seu arquivo aqui ou clique
+                                      para selecionar
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                      Formatos suportados: .txt, .pdf
+                                    </p>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? "Processando..." : "Processar Email"}
+                    </Button>
+                  </form>
+                </Form>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
