@@ -19,6 +19,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ModeToggle } from "./custom/ThemeToggleBtn";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 
 const formSchema = z
   .object({
@@ -56,6 +65,7 @@ export function EmailForm() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ProcessEmailResponse | null>(null);
   const [isFileMode, setIsFileMode] = useState(false);
+  const [showFileDisabledModal, setShowFileDisabledModal] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -67,7 +77,6 @@ export function EmailForm() {
 
   const toggleMode = () => {
     setIsFileMode(!isFileMode);
-    // Limpar os campos ao trocar de modo
     form.reset({
       emailText: "",
       emailFile: undefined,
@@ -75,19 +84,21 @@ export function EmailForm() {
   };
 
   async function onSubmit() {
+    const emailFile = form.getValues("emailFile");
+    if (emailFile) {
+      setShowFileDisabledModal(true);
+      return;
+    }
+
     setLoading(true);
     setResult(null);
 
     try {
       const formData = new FormData();
       const emailText = form.getValues("emailText");
-      const emailFile = form.getValues("emailFile");
 
       if (emailText && emailText.trim() !== "") {
         formData.append("email_text", emailText);
-      }
-      if (emailFile) {
-        formData.append("email_file", emailFile);
       }
 
       const response = await fetch(
@@ -181,7 +192,6 @@ export function EmailForm() {
                 isFileMode ? "rotate-y-180" : ""
               }`}
             >
-              {/* Lado do Texto */}
               <div className="absolute inset-0 backface-hidden">
                 <Form {...form}>
                   <form
@@ -208,7 +218,6 @@ export function EmailForm() {
                         </FormItem>
                       )}
                     />
-
                     <Button type="submit" className="w-full" disabled={loading}>
                       {loading ? "Processando..." : "Processar Email"}
                     </Button>
@@ -216,7 +225,6 @@ export function EmailForm() {
                 </Form>
               </div>
 
-              {/* Lado do Arquivo */}
               <div className="absolute inset-0 backface-hidden rotate-y-180">
                 <Form {...form}>
                   <form
@@ -260,50 +268,6 @@ export function EmailForm() {
                                     .getElementById("file-upload")
                                     ?.click()
                                 }
-                                onDragOver={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  e.currentTarget.classList.add(
-                                    "border-primary",
-                                    "bg-primary/10"
-                                  );
-                                }}
-                                onDragEnter={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                }}
-                                onDragLeave={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  e.currentTarget.classList.remove(
-                                    "border-primary",
-                                    "bg-primary/10"
-                                  );
-                                }}
-                                onDrop={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  e.currentTarget.classList.remove(
-                                    "border-primary",
-                                    "bg-primary/10"
-                                  );
-                                  const files = e.dataTransfer.files;
-                                  if (files.length > 0) {
-                                    const file = files[0];
-                                    if (
-                                      file.type === "text/plain" ||
-                                      file.type === "application/pdf" ||
-                                      file.name.endsWith(".txt") ||
-                                      file.name.endsWith(".pdf")
-                                    ) {
-                                      onChange(file);
-                                    } else {
-                                      toast.error(
-                                        "Formato de arquivo não suportado. Use apenas .txt ou .pdf"
-                                      );
-                                    }
-                                  }
-                                }}
                               >
                                 {value ? (
                                   <>
@@ -340,7 +304,6 @@ export function EmailForm() {
                         </FormItem>
                       )}
                     />
-
                     <Button type="submit" className="w-full" disabled={loading}>
                       {loading ? "Processando..." : "Processar Email"}
                     </Button>
@@ -392,7 +355,6 @@ export function EmailForm() {
                     </span>
                   </h4>
                 </div>
-
                 {result.response.text && (
                   <div>
                     <h5 className="font-semibold mb-2">
@@ -405,13 +367,11 @@ export function EmailForm() {
                     </Alert>
                   </div>
                 )}
-
                 {result.response.text && (
                   <Button variant="outline" onClick={copyResponse}>
                     📋 Copiar Resposta
                   </Button>
                 )}
-
                 {!result.response.generated && (
                   <Alert>
                     <AlertDescription>
@@ -424,6 +384,26 @@ export function EmailForm() {
           </CardContent>
         </Card>
       )}
+
+      <AlertDialog
+        open={showFileDisabledModal}
+        onOpenChange={setShowFileDisabledModal}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Envio de Arquivos Desativado</AlertDialogTitle>
+            <AlertDialogDescription>
+              No momento, o envio de arquivos não está disponível. Por favor,
+              use o modo de texto para análise de emails.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowFileDisabledModal(false)}>
+              Ok
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
