@@ -80,7 +80,7 @@ export function EmailForm() {
       }
 
       const response = await fetch(
-        "https://email-classifier-backend-ia98.onrender.com/process_email",
+        "https://email-classifier-backend-ia98.onrender.com/api/process_email",
         {
           method: "POST",
           body: formData,
