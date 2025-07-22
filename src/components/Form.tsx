@@ -217,7 +217,7 @@ export function EmailForm() {
                       )}
                     />
                     <Button type="submit" className="w-full" disabled={loading}>
-                      {loading ? "Processando..." : "Processar Email"}
+                      {loading ? "Processando..." : "Processar texto"}
                     </Button>
                   </form>
                 </Form>
