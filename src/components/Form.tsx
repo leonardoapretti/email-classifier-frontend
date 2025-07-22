@@ -152,7 +152,7 @@ export function EmailForm() {
           <CardTitle>
             <div className="flex justify-between items-center w-full">
               <span className="text-2xl font-bold">
-                Classificador Inteligente de Emails
+                Classificador de mensagens
               </span>
               <ModeToggle />
             </div>
@@ -203,12 +203,10 @@ export function EmailForm() {
                       name="emailText"
                       render={({ field }) => (
                         <FormItem className="flex-1">
-                          <FormLabel>
-                            Escreva ou cole o texto do email
-                          </FormLabel>
+                          <FormLabel>Escreva ou cole o texto</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="Cole aqui o conteúdo do email para análise..."
+                              placeholder="Cole aqui o conteúdo para análise..."
                               className="h-[280px] resize-none"
                               disabled={loading}
                               {...field}
@@ -305,7 +303,7 @@ export function EmailForm() {
                       )}
                     />
                     <Button type="submit" className="w-full" disabled={loading}>
-                      {loading ? "Processando..." : "Processar Email"}
+                      {loading ? "Processando..." : "Processar texto"}
                     </Button>
                   </form>
                 </Form>
@@ -320,7 +318,7 @@ export function EmailForm() {
           <CardContent className="flex items-center justify-center p-6">
             <div className="flex items-center space-x-3">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-              <span>Processando email...</span>
+              <span>Processando texto...</span>
             </div>
           </CardContent>
         </Card>
@@ -335,7 +333,7 @@ export function EmailForm() {
             {!result.success ? (
               <Alert variant="destructive">
                 <AlertDescription>
-                  Erro ao processar o email. Tente novamente.
+                  Erro ao processar o texto. Tente novamente.
                 </AlertDescription>
               </Alert>
             ) : (
